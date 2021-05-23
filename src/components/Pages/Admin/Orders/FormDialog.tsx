@@ -8,7 +8,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Slide from '@material-ui/core/Slide';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import TextField from 'components/Shared/Fields/Text';
-//import Toast from 'components/Shared/Toast';
+import Toast from 'components/Shared/Toast';
 import { logError } from 'helpers/rxjs-operators/logError';
 import { useFormikObservable } from 'hooks/useFormikObservable';
 import IOrder from 'interfaces/models/order';
@@ -16,6 +16,7 @@ import React, { forwardRef, Fragment, memo, useCallback } from 'react';
 import { useObservable } from 'react-use-observable';
 import authService from 'services/auth';
 import orderService from 'services/order';
+import { tap } from 'rxjs/operators';
 import * as yup from 'yup';
 
 interface IProps {
@@ -56,7 +57,13 @@ const FormDialog = memo((props: IProps) => {
       model.userId = user.id;
       const parsedQuantity = Number(model.quantity);
       model.quantity = parsedQuantity;
-      return orderService.save(model).pipe(logError(true));
+      return orderService.save(model).pipe(
+        tap(model => {
+          Toast.show(`${model.name} foi salvo`);
+          props.onComplete(model);
+        }),
+        logError(true)
+      );
     }
   });
 
