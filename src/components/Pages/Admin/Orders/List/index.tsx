@@ -90,6 +90,9 @@ const OrderListPage = memo(() => {
                 >
                   Quantidade
                 </TableCellSortable>
+                <TableCellSortable paginationParams={params} disabled={loading} onChange={mergeParams} column='value'>
+                  Valor
+                </TableCellSortable>
                 <TableCellActions>
                   <IconButton disabled={loading} onClick={handleRefresh}>
                     <RefreshIcon />
