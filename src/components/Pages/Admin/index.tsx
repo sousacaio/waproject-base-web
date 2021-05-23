@@ -11,7 +11,7 @@ import OrderIndexPage from './Orders';
 import SamplePage from './Sample';
 import UserIndexPage from './Users';
 
-export const ScrollTopContext = React.createContext<Function>(() => { });
+export const ScrollTopContext = React.createContext<Function>(() => {});
 
 const useStyles = makeStyles(theme => ({
   root: {

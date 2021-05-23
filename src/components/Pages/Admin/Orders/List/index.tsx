@@ -6,14 +6,14 @@ import Toolbar from 'components/Layout/Toolbar';
 import CardLoader from 'components/Shared/CardLoader';
 import SearchField from 'components/Shared/Pagination/SearchField';
 import usePaginationObservable from 'hooks/usePagination';
-import IUser from 'interfaces/models/user';
+import IOrder from 'interfaces/models/order';
 import React, { Fragment, memo, useCallback, useState } from 'react';
 import userService from 'services/user';
 import FormDialog from '../FormDialog';
 
 const OrderListPage = memo(() => {
   const [formOpened, setFormOpened] = useState(false);
-  const [current, setCurrent] = useState<IUser>();
+  const [current, setCurrent] = useState<IOrder>();
 
   const [params, mergeParams, loading, , refresh] = usePaginationObservable(
     params => userService.list(params),
@@ -22,9 +22,9 @@ const OrderListPage = memo(() => {
   );
 
   const formCallback = useCallback(
-    (user?: IUser) => {
+    (order?: IOrder) => {
       setFormOpened(false);
-      current ? refresh() : mergeParams({ term: user.email });
+      current ? refresh() : mergeParams({ term: order.name });
     },
     [current, mergeParams, refresh]
   );
@@ -37,10 +37,10 @@ const OrderListPage = memo(() => {
 
   return (
     <Fragment>
-      <Toolbar title='Usuários' />
+      <Toolbar title='Pedidos' />
       <Card>
         <CardLoader show={loading} />
-        <FormDialog opened={formOpened} user={current} onComplete={formCallback} onCancel={formCancel} />
+        <FormDialog opened={formOpened} order={current} onComplete={formCallback} onCancel={formCancel} />
         <CardContent>
           <Grid container justify='space-between' alignItems='center' spacing={2}>
             <Grid item xs={12} sm={6} lg={4}>
@@ -54,7 +54,7 @@ const OrderListPage = memo(() => {
             </Grid>
           </Grid>
         </CardContent>
-        {/* table goes here     */}
+        {/*table goes here*/}
       </Card>
     </Fragment>
   );

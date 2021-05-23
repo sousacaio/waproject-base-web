@@ -3,28 +3,24 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import Grid from '@material-ui/core/Grid';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Slide from '@material-ui/core/Slide';
 import makeStyles from '@material-ui/core/styles/makeStyles';
-import ErrorMessage from 'components/Shared/ErrorMessage';
 import TextField from 'components/Shared/Fields/Text';
 import Toast from 'components/Shared/Toast';
 import { logError } from 'helpers/rxjs-operators/logError';
 import { useFormikObservable } from 'hooks/useFormikObservable';
-import IUser from 'interfaces/models/user';
+import IOrder from 'interfaces/models/order';
 import React, { forwardRef, Fragment, memo, useCallback } from 'react';
-import { useRetryableObservable } from 'react-use-observable';
 import { tap } from 'rxjs/operators';
-import userService from 'services/user';
+import orderService from 'services/order';
 import * as yup from 'yup';
 
 interface IProps {
   opened: boolean;
-  user?: IUser;
-  onComplete: (user: IUser) => void;
+  order?: IOrder;
+  onComplete: (order: IOrder) => void;
   onCancel: () => void;
 }
 
@@ -49,27 +45,23 @@ const useStyle = makeStyles({
 const FormDialog = memo((props: IProps) => {
   const classes = useStyle(props);
 
-  const formik = useFormikObservable<IUser>({
-    initialValues: { roles: [] },
+  const formik = useFormikObservable<IOrder>({
+    initialValues: {},
     validationSchema,
     onSubmit(model) {
-      return userService.save(model).pipe(
-        tap(user => {
-          Toast.show(`${user.firstName} foi salvo${model.id ? '' : ', um email foi enviado com a senha'}`);
-          props.onComplete(user);
+      return orderService.save(model).pipe(
+        tap(order => {
+          Toast.show(`${order.name} foi salvo!`);
+          props.onComplete(order);
         }),
         logError(true)
       );
     }
   });
 
-  const [roles, rolesError, , retryRoles] = useRetryableObservable(() => {
-    return userService.roles().pipe(logError());
-  }, []);
-
   const handleEnter = useCallback(() => {
-    formik.setValues(props.user ?? formik.initialValues, false);
-  }, [formik, props.user]);
+    formik.setValues(props.order ?? formik.initialValues, false);
+  }, [formik, props.order]);
 
   const handleExit = useCallback(() => {
     formik.resetForm();
@@ -87,34 +79,25 @@ const FormDialog = memo((props: IProps) => {
       {formik.isSubmitting && <LinearProgress color='primary' />}
 
       <form onSubmit={formik.handleSubmit}>
-        <DialogTitle>{formik.values.id ? 'Editar' : 'Novo'} Usuário</DialogTitle>
+        <DialogTitle>{formik.values.id ? 'Editar' : 'Novo'} Pedido</DialogTitle>
         <DialogContent className={classes.content}>
-          {rolesError && <ErrorMessage error={rolesError} tryAgain={retryRoles} />}
-
-          {!rolesError && (
-            <Fragment>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField label='Nome' name='name' formik={formik} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField label='Quantidade' name='quantity' formik={formik} />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField label='Descrição' name='description' formik={formik} />
-                </Grid>
+          <Fragment>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label='Nome' name='name' formik={formik} />
               </Grid>
-              <FormControl component='fieldset' error={formik.touched.roles && !!formik.errors.roles}>
-                {formik.touched.roles && !!formik.errors.roles && (
-                  <FormHelperText>{formik.errors.roles}</FormHelperText>
-                )}
-              </FormControl>
-            </Fragment>
-          )}
+              <Grid item xs={12} sm={6}>
+                <TextField label='Quantidade' name='quantity' formik={formik} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label='Descrição' name='description' formik={formik} />
+              </Grid>
+            </Grid>
+          </Fragment>
         </DialogContent>
         <DialogActions>
           <Button onClick={props.onCancel}>Cancelar</Button>
-          <Button color='primary' variant='contained' type='submit' disabled={formik.isSubmitting || !roles}>
+          <Button color='primary' variant='contained' type='submit' disabled={formik.isSubmitting}>
             Salvar
           </Button>
         </DialogActions>
