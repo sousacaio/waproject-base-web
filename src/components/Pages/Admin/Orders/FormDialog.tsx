@@ -8,12 +8,13 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Slide from '@material-ui/core/Slide';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import TextField from 'components/Shared/Fields/Text';
-import Toast from 'components/Shared/Toast';
+//import Toast from 'components/Shared/Toast';
 import { logError } from 'helpers/rxjs-operators/logError';
 import { useFormikObservable } from 'hooks/useFormikObservable';
 import IOrder from 'interfaces/models/order';
 import React, { forwardRef, Fragment, memo, useCallback } from 'react';
-import { tap } from 'rxjs/operators';
+import { useObservable } from 'react-use-observable';
+import authService from 'services/auth';
 import orderService from 'services/order';
 import * as yup from 'yup';
 
@@ -27,7 +28,6 @@ interface IProps {
 const validationSchema = yup.object().shape({
   name: yup.string().required().min(3).max(50),
   description: yup.string().required().min(5),
-  userId: yup.number().required(),
   quantity: yup.number().required().min(1)
 });
 
@@ -45,17 +45,19 @@ const useStyle = makeStyles({
 const FormDialog = memo((props: IProps) => {
   const classes = useStyle(props);
 
+  const [user] = useObservable(() => {
+    return authService.getUser().pipe(logError());
+  }, []);
+
   const formik = useFormikObservable<IOrder>({
     initialValues: {},
     validationSchema,
     onSubmit(model) {
-      return orderService.save(model).pipe(
-        tap(order => {
-          Toast.show(`${order.name} foi salvo!`);
-          props.onComplete(order);
-        }),
-        logError(true)
-      );
+      model.userId = user.id;
+      const parsedQuantity = Number(model.quantity);
+      model.quantity = parsedQuantity;
+      console.log(model);
+      return orderService.save(model).pipe(logError(true));
     }
   });
 
@@ -87,7 +89,7 @@ const FormDialog = memo((props: IProps) => {
                 <TextField label='Nome' name='name' formik={formik} />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField label='Quantidade' name='quantity' formik={formik} />
+                <TextField label='Quantidade' type='number' name='quantity' formik={formik} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField label='Descrição' name='description' formik={formik} />
