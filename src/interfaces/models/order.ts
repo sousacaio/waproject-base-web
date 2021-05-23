@@ -4,6 +4,7 @@ export default interface IOrder {
   name: string;
   description: string;
   quantity: number;
+  value: number;
   createdDate?: string;
   updatedData?: string;
 }
