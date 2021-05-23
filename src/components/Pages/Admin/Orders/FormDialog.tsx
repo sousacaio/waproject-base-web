@@ -56,7 +56,6 @@ const FormDialog = memo((props: IProps) => {
       model.userId = user.id;
       const parsedQuantity = Number(model.quantity);
       model.quantity = parsedQuantity;
-      console.log(model);
       return orderService.save(model).pipe(logError(true));
     }
   });
