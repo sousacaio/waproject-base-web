@@ -4,20 +4,32 @@ import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from 'components/Layout/Toolbar';
 import CardLoader from 'components/Shared/CardLoader';
+import EmptyAndErrorMessages from 'components/Shared/Pagination/EmptyAndErrorMessages';
 import SearchField from 'components/Shared/Pagination/SearchField';
+import TableCellActions from 'components/Shared/Pagination/TableCellActions';
+import TableCellSortable from 'components/Shared/Pagination/TableCellSortable';
+import TableWrapper from 'components/Shared/TableWrapper';
 import usePaginationObservable from 'hooks/usePagination';
 import IOrder from 'interfaces/models/order';
+import RefreshIcon from 'mdi-react/RefreshIcon';
 import React, { Fragment, memo, useCallback, useState } from 'react';
-import userService from 'services/user';
+import orderService from 'services/order';
 import FormDialog from '../FormDialog';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import IconButton from '@material-ui/core/IconButton';
+import TablePagination from 'components/Shared/Pagination/TablePagination';
+import TableHead from '@material-ui/core/TableHead';
+import ListOrders from './ListOrder';
 
 const OrderListPage = memo(() => {
   const [formOpened, setFormOpened] = useState(false);
   const [current, setCurrent] = useState<IOrder>();
 
-  const [params, mergeParams, loading, , refresh] = usePaginationObservable(
-    params => userService.list(params),
-    { orderBy: 'fullName', orderDirection: 'asc' },
+  const [params, mergeParams, loading, data, error, , refresh] = usePaginationObservable(
+    params => orderService.list(params),
+    { orderBy: 'name', orderDirection: 'asc' },
     []
   );
 
@@ -28,13 +40,13 @@ const OrderListPage = memo(() => {
     },
     [current, mergeParams, refresh]
   );
-
+  const handleRefresh = useCallback(() => refresh(), [refresh]);
   const formCancel = useCallback(() => setFormOpened(false), []);
   const handleCreate = useCallback(() => {
     setCurrent(null);
     setFormOpened(true);
   }, []);
-
+  const { total, results } = data || ({ total: 0, results: [] } as typeof data);
   return (
     <Fragment>
       <Toolbar title='Pedidos' />
@@ -54,7 +66,53 @@ const OrderListPage = memo(() => {
             </Grid>
           </Grid>
         </CardContent>
-        {/*table goes here*/}
+
+        <TableWrapper minWidth={500}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCellSortable paginationParams={params} disabled={loading} onChange={mergeParams} column='name'>
+                  Nome
+                </TableCellSortable>
+                <TableCellSortable
+                  paginationParams={params}
+                  disabled={loading}
+                  onChange={mergeParams}
+                  column='description'
+                >
+                  Descrição
+                </TableCellSortable>
+                <TableCellSortable
+                  paginationParams={params}
+                  disabled={loading}
+                  onChange={mergeParams}
+                  column='quantity'
+                >
+                  Quantidade
+                </TableCellSortable>
+                <TableCellActions>
+                  <IconButton disabled={loading} onClick={handleRefresh}>
+                    <RefreshIcon />
+                  </IconButton>
+                </TableCellActions>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <EmptyAndErrorMessages
+                colSpan={7}
+                error={error}
+                loading={loading}
+                hasData={results.length > 0}
+                onTryAgain={refresh}
+              />
+              {results.map(order => (
+                <ListOrders key={order.id} order={order} />
+              ))}
+            </TableBody>
+          </Table>
+        </TableWrapper>
+
+        <TablePagination total={total} disabled={loading} paginationParams={params} onChange={mergeParams} />
       </Card>
     </Fragment>
   );
