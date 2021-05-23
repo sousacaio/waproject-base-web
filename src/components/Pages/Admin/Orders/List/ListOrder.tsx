@@ -14,6 +14,7 @@ const ListOrders = memo((props: IProps) => {
       <TableCell>{order.name}</TableCell>
       <TableCell>{order.description}</TableCell>
       <TableCell>{order.quantity}</TableCell>
+      <TableCell>{order.value}</TableCell>
     </TableRow>
   );
 });
