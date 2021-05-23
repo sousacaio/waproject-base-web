@@ -29,7 +29,8 @@ interface IProps {
 const validationSchema = yup.object().shape({
   name: yup.string().required().min(3).max(50),
   description: yup.string().required().min(5),
-  quantity: yup.number().required().min(1)
+  quantity: yup.number().required().min(1),
+  value: yup.number().required().min(1)
 });
 
 const useStyle = makeStyles({
@@ -56,7 +57,9 @@ const FormDialog = memo((props: IProps) => {
     onSubmit(model) {
       model.userId = user.id;
       const parsedQuantity = Number(model.quantity);
+      const parsedValue = Number(model.value);
       model.quantity = parsedQuantity;
+      model.value = parsedValue;
       return orderService.save(model).pipe(
         tap(model => {
           Toast.show(`${model.name} foi salvo`);
@@ -99,6 +102,9 @@ const FormDialog = memo((props: IProps) => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField label='Descrição' name='description' formik={formik} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label='Valor' name='value' formik={formik} />
               </Grid>
             </Grid>
           </Fragment>
