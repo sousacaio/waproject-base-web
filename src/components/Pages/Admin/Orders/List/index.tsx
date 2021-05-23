@@ -46,6 +46,12 @@ const OrderListPage = memo(() => {
     setCurrent(null);
     setFormOpened(true);
   }, []);
+
+  const handleEdit = useCallback((current: IOrder) => {
+    setCurrent(current);
+    setFormOpened(true);
+  }, []);
+
   const { total, results } = data || ({ total: 0, results: [] } as typeof data);
   return (
     <Fragment>
@@ -109,7 +115,7 @@ const OrderListPage = memo(() => {
                 onTryAgain={refresh}
               />
               {results.map(order => (
-                <ListOrders key={order.id} order={order} />
+                <ListOrders key={order.id} order={order} onEdit={handleEdit} />
               ))}
             </TableBody>
           </Table>
