@@ -1,7 +1,7 @@
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import Drawer from 'components/Layout/Drawer';
 import AccountMultipleIcon from 'mdi-react/AccountMultipleIcon';
-import CartIcon from 'mdi-react/CartIcon'
+import CartIcon from 'mdi-react/CartIcon';
 import StarIcon from 'mdi-react/StarIcon';
 import ViewDashboardIcon from 'mdi-react/ViewDashboardIcon';
 import React, { memo, useCallback, useRef, useState } from 'react';
