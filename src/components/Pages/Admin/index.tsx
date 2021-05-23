@@ -6,9 +6,8 @@ import StarIcon from 'mdi-react/StarIcon';
 import ViewDashboardIcon from 'mdi-react/ViewDashboardIcon';
 import React, { memo, useCallback, useRef, useState } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-
 import DashboardIndexPage from './Dashboard';
-import SampleOrder from './Orders/SampleOrder';
+import OrderIndexPage from './Orders';
 import SamplePage from './Sample';
 import UserIndexPage from './Users';
 
@@ -39,12 +38,7 @@ const AdminPage = memo((props: {}) => {
   const mainContent = useRef<HTMLDivElement>();
   const [menu] = useState([
     { path: '/', display: 'Dashboard', icon: ViewDashboardIcon },
-    {
-      path: '/usuarios',
-      display: 'Usuários',
-      //role: enRoles.admin,
-      icon: AccountMultipleIcon
-    },
+    { path: '/usuarios', display: 'Usuários', icon: AccountMultipleIcon },
     { path: '/exemplos', display: 'Exemplos', icon: StarIcon },
     { path: '/pedidos', display: 'Pedidos', icon: CartIcon }
   ]);
@@ -60,7 +54,7 @@ const AdminPage = memo((props: {}) => {
             <Switch>
               <Route path='/exemplos' component={SamplePage} />
               <Route path='/usuarios' component={UserIndexPage} />
-              <Route path='/pedidos' component={SampleOrder} />
+              <Route path='/pedidos' component={OrderIndexPage} />
               <Route path='/' component={DashboardIndexPage} />
               <Route render={renderRedirect} />
             </Switch>
